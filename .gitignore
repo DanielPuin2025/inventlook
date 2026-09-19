@@ -1,44 +1,29 @@
-# Compilados
+# Compiled files
 target/
 *.class
-*.jar
-*.war
-*.ear
 
-# Logs
+# Log files
 *.log
-
-# IDE
-.vscode/
-.idea/
-*.iml
-.settings/
-.project
-.classpath
+logs/
 
 # Maven
 .mvn/wrapper/maven-wrapper.jar
 
-# Spring Boot
-spring-boot-devtools.jar
-
-# Sistema operativo
+# IDE files
+.idea/
+*.iml
+.vscode/
 .DS_Store
-Thumbs.db
 
-# Archivos temporales
-*.tmp
-*.swp
-*~
-
-# Carpeta Claude
-.claude/
-.opencode/
-
-# Variables de entorno y configuraciones locales
+# Environment variables (IMPORTANTE: nunca subir contraseñas)
 .env
-.env.local
-application-local.properties
 
-# Archivos de configuración sensibles
-**/application-prod.properties.backup
+# Database files
+*.db
+
+# Temporary files
+*.tmp
+
+# Archivos temporales del proyecto
+APPLICATION_RUNNING.txt
+DONDE_ESTAN_LOS_DATOS.txt

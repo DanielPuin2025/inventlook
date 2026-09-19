@@ -1,251 +1,199 @@
-# 🚀 Guía Completa de Despliegue - InventLook
-
-## 📋 PARTE 1: PRUEBAS LOCALES
-
-### 1.1 Probar en desarrollo (H2 - sin MySQL)
-
-```bash
-# 1. Cambiar el perfil activo a dev
-# Edita src/main/resources/application.properties:
-spring.profiles.active=dev
-
-# 2. Compilar y ejecutar
-./mvnw clean package -DskipTests
-./mvnw spring-boot:run
-
-# 3. Acceder a:
-# - Aplicación: http://localhost:8080
-# - Consola H2: http://localhost:8080/h2-console
-```
-
-### 1.2 Probar con MySQL local
-
-```bash
-# 1. Crear la base de datos
-mysql -u root -p
-CREATE DATABASE inventlook CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'inventlook'@'localhost' IDENTIFIED BY 'inventlook2024';
-GRANT ALL PRIVILEGES ON inventlook.* TO 'inventlook'@'localhost';
-FLUSH PRIVILEGES;
-EXIT;
-
-# 2. Importar el esquema
-mysql -u inventlook -p inventlook < inventlook.sql
-
-# 3. Cambiar a perfil prod
-# Edita src/main/resources/application.properties:
-spring.profiles.active=prod
-
-# 4. Ejecutar
-./mvnw spring-boot:run
-```
+# 🚀 GUÍA DE DEPLOYMENT - INVENTLOOK
+## VPS Hostinger → programamega.com
 
 ---
 
-## 🔒 PARTE 2: PREPARAR PARA GITHUB
+## 📋 REQUISITOS EN EL VPS
 
-### 2.1 Proteger credenciales sensibles
+Antes de empezar, tu VPS debe tener instalado:
 
-Primero, vamos a sacar las credenciales del código:
-
-**Crear archivo de variables de entorno** (NO subir a GitHub):
-
-```bash
-# Crear archivo .env (ya está en .gitignore)
-echo "DB_PASSWORD=inventlook2024" > .env
-echo "MAIL_USERNAME=noireliteofficial@gmail.com" >> .env
-echo "MAIL_PASSWORD=lxdugwluolrhfqlp" >> .env
-```
-
-**Modificar application-prod.properties para usar variables:**
-
-```properties
-spring.datasource.password=${DB_PASSWORD:inventlook2024}
-spring.mail.username=${MAIL_USERNAME}
-spring.mail.password=${MAIL_PASSWORD}
-```
-
-### 2.2 Verificar .gitignore
-
-Asegúrate que `.gitignore` incluya:
-```
-.env
-application-local.properties
-*.log
-target/
-.claude/
-.opencode/
-```
-
-### 2.3 Subir a GitHub
-
-```bash
-# 1. Inicializar repositorio (si no lo has hecho)
-git init
-git add .
-git commit -m "Initial commit: InventLook inventory system"
-
-# 2. Crear repositorio en GitHub
-# Ve a https://github.com/new
-# Nombre: inventlook
-# Visibilidad: Private (recomendado)
-
-# 3. Conectar y subir
-git remote add origin https://github.com/TU-USUARIO/inventlook.git
-git branch -M main
-git push -u origin main
-```
+1. **Java 17 o superior**
+2. **MySQL 8.x**
+3. **Maven** (opcional, usaremos el Maven wrapper incluido)
+4. **Nginx** (para proxy reverso)
 
 ---
 
-## 🖥️ PARTE 3: DESPLIEGUE EN VPS HOSTINGER
+## 🔧 PASO 1: PREPARAR EL VPS
 
-### 3.1 Requisitos del VPS
-
-- Ubuntu 20.04+ o CentOS 8+
-- Mínimo 2GB RAM
-- Java 17
-- MySQL 8.0
-- Nginx (para proxy reverso)
-
-### 3.2 Conexión SSH al VPS
+### 1.1 Conectarse al VPS por SSH
 
 ```bash
-ssh root@TU_IP_VPS
-# O si tienes usuario específico:
-ssh usuario@TU_IP_VPS
+ssh root@tu-ip-vps-hostinger
 ```
 
-### 3.3 Instalación de dependencias
+### 1.2 Instalar Java 17
 
 ```bash
 # Actualizar sistema
-sudo apt update && sudo apt upgrade -y
+apt update && apt upgrade -y
 
 # Instalar Java 17
-sudo apt install openjdk-17-jdk -y
+apt install openjdk-17-jdk -y
+
+# Verificar instalación
 java -version
-
-# Instalar MySQL
-sudo apt install mysql-server -y
-sudo systemctl start mysql
-sudo systemctl enable mysql
-
-# Configurar MySQL
-sudo mysql_secure_installation
-# Responde: Y a todo excepto "Disallow root login remotely" (N)
-
-# Instalar Nginx
-sudo apt install nginx -y
-sudo systemctl start nginx
-sudo systemctl enable nginx
-
-# Instalar Git y Maven
-sudo apt install git maven -y
 ```
 
-### 3.4 Configurar MySQL en el VPS
+### 1.3 Instalar MySQL
 
 ```bash
-# Entrar a MySQL
-sudo mysql -u root -p
+# Instalar MySQL
+apt install mysql-server -y
 
-# Crear base de datos y usuario
+# Iniciar MySQL
+systemctl start mysql
+systemctl enable mysql
+
+# Configurar MySQL (crear contraseña root)
+mysql_secure_installation
+```
+
+### 1.4 Instalar Nginx
+
+```bash
+apt install nginx -y
+systemctl start nginx
+systemctl enable nginx
+```
+
+---
+
+## 📦 PASO 2: SUBIR EL PROYECTO AL VPS
+
+### Opción A: Usando SCP (desde tu PC Windows)
+
+```bash
+# Crear carpeta en el VPS
+ssh root@tu-ip-vps "mkdir -p /root/inventlook"
+
+# Subir proyecto (ejecutar desde tu carpeta del proyecto)
+scp -r * root@tu-ip-vps:/root/inventlook/
+```
+
+### Opción B: Usando Git (recomendado)
+
+```bash
+# En el VPS
+cd /root
+git clone https://github.com/TU_USUARIO/inventlook.git
+cd inventlook
+```
+
+---
+
+## 🗄️ PASO 3: CONFIGURAR MYSQL EN EL VPS
+
+### 3.1 Crear base de datos
+
+```bash
+# Conectar a MySQL
+mysql -u root -p
+
+# Ejecutar en MySQL:
 CREATE DATABASE inventlook CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'inventlook'@'localhost' IDENTIFIED BY 'TU_PASSWORD_SEGURO_AQUI';
+CREATE USER 'inventlook'@'localhost' IDENTIFIED BY 'PasswordSeguro123!';
 GRANT ALL PRIVILEGES ON inventlook.* TO 'inventlook'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
 ```
 
-### 3.5 Clonar y configurar aplicación
+### 3.2 Importar tus datos (si tienes backup)
 
 ```bash
-# Crear directorio para aplicaciones
-sudo mkdir -p /opt/inventlook
-sudo chown $USER:$USER /opt/inventlook
-cd /opt/inventlook
-
-# Clonar repositorio
-git clone https://github.com/TU-USUARIO/inventlook.git .
-
-# Crear archivo de variables de entorno
-nano .env
+mysql -u root -p inventlook < tu_backup.sql
 ```
 
-**Contenido de .env:**
-```bash
-DB_PASSWORD=TU_PASSWORD_SEGURO_AQUI
-MAIL_USERNAME=tu-correo@gmail.com
-MAIL_PASSWORD=tu-contraseña-app-gmail
-```
+---
+
+## ⚙️ PASO 4: CONFIGURAR VARIABLES DE ENTORNO
+
+### 4.1 Editar application-prod.properties
 
 ```bash
-# Cargar variables de entorno
-export $(cat .env | xargs)
-
-# Importar base de datos
-mysql -u inventlook -p inventlook < inventlook.sql
+cd /root/inventlook
+nano src/main/resources/application-prod.properties
 ```
 
-### 3.6 Compilar aplicación
+Actualizar:
+```properties
+spring.datasource.password=PasswordSeguro123!
+spring.mail.password=TuPasswordGmail
+```
+
+---
+
+## 🚀 PASO 5: COMPILAR Y EJECUTAR
+
+### 5.1 Dar permisos de ejecución
 
 ```bash
-# Compilar (sin tests para producción)
-./mvnw clean package -DskipTests
-
-# Verificar que se creó el JAR
-ls -lh target/*.jar
+chmod +x mvnw
+chmod +x deploy.sh
 ```
 
-### 3.7 Crear servicio systemd
+### 5.2 Ejecutar deployment
 
 ```bash
-sudo nano /etc/systemd/system/inventlook.service
+./deploy.sh
 ```
 
-**Contenido del archivo:**
-```ini
-[Unit]
-Description=InventLook Inventory Management System
-After=network.target mysql.service
+Este script:
+- Compila el proyecto
+- Crea el archivo JAR
+- Inicia la aplicación en puerto 8080
+- Guarda logs en `logs/app.log`
 
-[Service]
-Type=simple
-User=www-data
-WorkingDirectory=/opt/inventlook
-EnvironmentFile=/opt/inventlook/.env
-ExecStart=/usr/bin/java -jar /opt/inventlook/target/inventlook-0.0.1-SNAPSHOT.jar
-Restart=on-failure
-RestartSec=10
-StandardOutput=journal
-StandardError=journal
-SyslogIdentifier=inventlook
+---
 
-[Install]
-WantedBy=multi-user.target
-```
+## 🔄 PASO 6: CONFIGURAR SYSTEMD (REINICIO AUTOMÁTICO)
+
+### 6.1 Copiar archivo de servicio
 
 ```bash
-# Recargar systemd y habilitar servicio
-sudo systemctl daemon-reload
-sudo systemctl enable inventlook
-sudo systemctl start inventlook
+# Editar el archivo inventlook.service y actualizar las contraseñas
+nano inventlook.service
 
-# Verificar estado
-sudo systemctl status inventlook
+# Copiar a systemd
+cp inventlook.service /etc/systemd/system/
 
-# Ver logs
-sudo journalctl -u inventlook -f
+# Recargar systemd
+systemctl daemon-reload
+
+# Habilitar servicio
+systemctl enable inventlook
+
+# Iniciar servicio
+systemctl start inventlook
+
+# Ver estado
+systemctl status inventlook
 ```
 
-### 3.8 Configurar Nginx como proxy reverso
+### 6.2 Comandos útiles
 
 ```bash
-sudo nano /etc/nginx/sites-available/inventlook
+# Ver logs en tiempo real
+journalctl -u inventlook -f
+
+# Reiniciar aplicación
+systemctl restart inventlook
+
+# Detener aplicación
+systemctl stop inventlook
 ```
 
-**Contenido del archivo:**
+---
+
+## 🌐 PASO 7: CONFIGURAR NGINX Y DOMINIO
+
+### 7.1 Configurar Nginx como proxy reverso
+
+```bash
+nano /etc/nginx/sites-available/inventlook
+```
+
+Contenido:
 ```nginx
 server {
     listen 80;
@@ -257,132 +205,145 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        
-        # Timeouts
-        proxy_connect_timeout 60s;
-        proxy_send_timeout 60s;
-        proxy_read_timeout 60s;
     }
 }
 ```
 
+### 7.2 Activar configuración
+
 ```bash
-# Habilitar sitio
-sudo ln -s /etc/nginx/sites-available/inventlook /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
+# Crear enlace simbólico
+ln -s /etc/nginx/sites-available/inventlook /etc/nginx/sites-enabled/
+
+# Verificar configuración
+nginx -t
+
+# Reiniciar Nginx
+systemctl restart nginx
 ```
 
 ---
 
-## 🌐 PARTE 4: CONFIGURAR DOMINIO
+## 🔒 PASO 8: CONFIGURAR HTTPS CON CERTBOT
 
-### 4.1 En Hostinger DNS
-
-1. Ve al panel de Hostinger
-2. Selecciona tu dominio `programamega.com`
-3. Ve a "DNS Zone"
-4. Agrega/modifica estos registros:
-
-```
-Tipo    Nombre    Valor                TTL
-A       @         TU_IP_VPS           3600
-A       www       TU_IP_VPS           3600
-```
-
-5. Guarda los cambios (propagación: 5-30 minutos)
-
-### 4.2 Verificar propagación
+### 8.1 Instalar Certbot
 
 ```bash
-# Desde tu computadora local
-ping programamega.com
-nslookup programamega.com
+apt install certbot python3-certbot-nginx -y
 ```
 
-### 4.3 Instalar SSL con Let's Encrypt
+### 8.2 Obtener certificado SSL
 
 ```bash
-# En el VPS
-sudo apt install certbot python3-certbot-nginx -y
-
-# Obtener certificado
-sudo certbot --nginx -d programamega.com -d www.programamega.com
-
-# Seguir las instrucciones:
-# - Email: tu-correo@email.com
-# - Aceptar términos: Y
-# - Compartir email: N o Y
-# - Redirect HTTP a HTTPS: 2 (recomendado)
-
-# Renovación automática (ya está configurada)
-sudo systemctl status certbot.timer
+certbot --nginx -d programamega.com -d www.programamega.com
 ```
 
-### 4.4 Verificar aplicación
+Seguir las instrucciones y proporcionar tu email.
+
+---
+
+## 📡 PASO 9: CONFIGURAR DNS EN HOSTINGER
+
+### 9.1 En el panel de Hostinger:
+
+1. Ve a **Dominios → programamega.com → DNS**
+2. Agrega/edita estos registros:
+
+```
+Tipo: A
+Nombre: @
+Valor: IP_DE_TU_VPS
+TTL: 3600
+
+Tipo: A
+Nombre: www
+Valor: IP_DE_TU_VPS
+TTL: 3600
+```
+
+### 9.2 Esperar propagación DNS (5-30 minutos)
+
+---
+
+## ✅ VERIFICACIÓN FINAL
+
+### Verificar que todo funciona:
 
 ```bash
-# Espera 5-10 minutos y accede a:
-https://programamega.com
+# 1. Aplicación corriendo
+systemctl status inventlook
+
+# 2. Nginx corriendo
+systemctl status nginx
+
+# 3. Base de datos corriendo
+systemctl status mysql
+
+# 4. Probar localmente en el VPS
+curl http://localhost:8080
+
+# 5. Probar desde internet
+curl http://programamega.com
+```
+
+### Abrir en navegador:
+
+- **HTTP:** http://programamega.com
+- **HTTPS:** https://programamega.com (después de configurar Certbot)
+
+---
+
+## 🔥 FIREWALL (SEGURIDAD)
+
+```bash
+# Instalar UFW
+apt install ufw -y
+
+# Permitir SSH
+ufw allow 22/tcp
+
+# Permitir HTTP y HTTPS
+ufw allow 80/tcp
+ufw allow 443/tcp
+
+# Activar firewall
+ufw enable
+
+# Ver estado
+ufw status
 ```
 
 ---
 
-## 🔄 ACTUALIZACIONES FUTURAS
+## 📝 TROUBLESHOOTING
 
+### Ver logs de la aplicación:
 ```bash
-# En el VPS
-cd /opt/inventlook
+tail -f /root/inventlook/logs/app.log
+journalctl -u inventlook -n 100
+```
 
-# 1. Detener aplicación
-sudo systemctl stop inventlook
+### Reiniciar todo:
+```bash
+systemctl restart inventlook
+systemctl restart nginx
+systemctl restart mysql
+```
 
-# 2. Actualizar código
-git pull origin main
-
-# 3. Recompilar
-./mvnw clean package -DskipTests
-
-# 4. Reiniciar
-sudo systemctl start inventlook
-sudo systemctl status inventlook
+### Verificar puertos:
+```bash
+netstat -tulpn | grep :8080
+netstat -tulpn | grep :80
 ```
 
 ---
 
-## 🐛 TROUBLESHOOTING
+## 🎉 ¡LISTO!
 
-### Ver logs de la aplicación
-```bash
-sudo journalctl -u inventlook -n 100 --no-pager
-sudo journalctl -u inventlook -f
-```
+Tu aplicación estará disponible en:
+- **http://programamega.com**
+- **https://programamega.com** (con SSL)
 
-### Ver logs de Nginx
-```bash
-sudo tail -f /var/log/nginx/error.log
-sudo tail -f /var/log/nginx/access.log
-```
-
-### Reiniciar servicios
-```bash
-sudo systemctl restart inventlook
-sudo systemctl restart nginx
-sudo systemctl restart mysql
-```
-
-### Verificar puertos
-```bash
-sudo netstat -tulpn | grep :8080
-sudo netstat -tulpn | grep :80
-sudo netstat -tulpn | grep :443
-```
-
-### Firewall
-```bash
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw allow 22/tcp
-sudo ufw enable
-sudo ufw status
-```
+**Credenciales de prueba:**
+- Teléfono: 3001234567
+- Contraseña: admin123

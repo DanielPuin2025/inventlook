@@ -1,0 +1,23 @@
+#!/bin/bash
+# Script para mantener la aplicación corriendo con systemd
+# Ubicación: /etc/systemd/system/inventlook.service
+
+[Unit]
+Description=InventLook - Sistema de Inventario
+After=network.target mysql.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/inventlook
+ExecStart=/usr/bin/java -jar /root/inventlook/target/inventlook-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+Restart=always
+RestartSec=10
+StandardOutput=append:/root/inventlook/logs/app.log
+StandardError=append:/root/inventlook/logs/error.log
+
+Environment="DB_PASSWORD=TuPasswordMySQL"
+Environment="MAIL_PASSWORD=TuPasswordGmail"
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: inventlook-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: inventlook
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-Root#12345}
+      MYSQL_USER: inventlook
+      MYSQL_PASSWORD: ${DB_PASSWORD:-inventlook2024}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - inventlook-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: inventlook-app
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/inventlook?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=America/Bogota
+      SPRING_DATASOURCE_USERNAME: inventlook
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-inventlook2024}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+    ports:
+      - "8080:8080"
+    networks:
+      - inventlook-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: inventlook-nginx
+    restart: always
+    depends_on:
+      - app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./ssl:/etc/nginx/ssl
+    networks:
+      - inventlook-network
+
+volumes:
+  mysql-data:
+
+networks:
+  inventlook-network:
+    driver: bridge
