@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario - InventLook</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
+        
+        body {
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .ventana-registro {
+            background: white;
+            width: 100%;
+            max-width: 480px;
+            padding: 36px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+        }
+        .ventana-registro h1 {
+            font-size: 24px;
+            color: #1E5F8C;
+            margin-bottom: 6px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #E2E8F0;
+        }
+        .subtitulo {
+            color: #64748B;
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+        .form-group { margin-bottom: 18px; }
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #CBD5E1;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.2s;
+        }
+        input:focus { border-color: #1E5F8C; box-shadow: 0 0 0 3px rgba(30,95,140,0.1); }
+        .botones {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .btn-cancelar {
+            flex: 1;
+            padding: 12px;
+            background: #F1F5F9;
+            color: #334155;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-cancelar:hover { background: #E2E8F0; }
+        .btn-guardar {
+            flex: 1.2;
+            padding: 12px;
+            background: #2563EB;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-guardar:hover { background: #1D4ED8; }
+        .enlace-iniciar {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #64748B;
+        }
+        .enlace-iniciar a {
+            color: #2563EB;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .enlace-iniciar a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="ventana-registro">
+        <h1>REGISTRO DE USUARIO</h1>
+        <p class="subtitulo">Completa la información para ingresar al sistema</p>
+        <form th:action="@{/registro}" method="post" autocomplete="off">
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" name="nombre" placeholder="Ingresa el nombre completo" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>Correo</label>
+                <input type="email" name="correo" placeholder="Correo electrónico" required autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label> Crear Contraseña</label>
+                <input type="password" name="contrasena" placeholder="Solo números" required autocomplete="new-password">
+            </div>
+            <div class="form-group">
+                <label>Teléfono</label>
+                <input type="text" name="telefono" placeholder="Ingresa el número de teléfono" autocomplete="off">
+            </div>
+            <div class="botones">
+                <button type="button" class="btn-cancelar" onclick="window.location.href='/dashboard'">Cancelar</button>
+                <button type="submit" class="btn-guardar">Guardar usuario</button>
+            </div>
+        </form>
+        <div class="enlace-iniciar">
+            ¿Ya tienes una cuenta? <a href="/login">Iniciar sesión →</a>
+        </div>
+    </div>
+</body>
+</html>
