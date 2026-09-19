@@ -1,0 +1,55 @@
+inventlook/
+├── 📄 .env.example                      ← Plantilla de variables de entorno
+├── 📄 .gitignore                        ← Archivos ignorados por Git
+├── 📘 QUICKSTART.md                     ← ⭐ Inicio rápido (5 minutos)
+├── 📗 TESTING_GUIDE.md                  ← ⭐ Guía completa de pruebas (21 casos)
+├── 📙 DEPLOYMENT_GUIDE.md               ← ⭐ Despliegue en VPS paso a paso
+├── 📕 SECURITY_RECOMMENDATIONS.md       ← ⭐ Mejoras de seguridad
+├── 📊 REVISION_SUMMARY.md               ← ⭐ Resumen ejecutivo
+├── 📋 NEXT_STEPS.md                     ← ⭐ Próximos pasos ordenados
+├── 📄 README.md                         ← Documentación principal
+├── 📄 pom.xml                           ← Dependencias Maven
+├── 🛠️ setup.bat / setup.sh              ← Scripts de configuración inicial
+├── 🗄️ inventlook.sql                    ← Base de datos de ejemplo
+│
+├── deployment/                          ← 📂 Scripts de despliegue
+│   ├── deploy.sh                        ← Despliegue automatizado
+│   ├── backup-db.sh                     ← Backup de base de datos
+│   ├── inventlook.service               ← Configuración systemd
+│   └── nginx-inventlook.conf            ← Configuración Nginx
+│
+└── src/main/
+    ├── java/com/inventlook/             ← 📂 Código fuente Java
+    │   ├── InventlookApplication.java   ← Main class
+    │   ├── Usuario.java                 ← Entidad Usuario
+    │   ├── UsuarioService.java          ← Lógica de usuarios
+    │   ├── UsuarioController.java       ← Endpoints de usuarios
+    │   ├── UsuarioRepository.java       ← Acceso a datos
+    │   ├── Producto.java                ← Entidad Producto
+    │   ├── ProductoService.java         ← Lógica de productos
+    │   ├── ProductoController.java      ← Endpoints de productos
+    │   ├── Categoria.java               ← Entidad Categoría
+    │   ├── CategoriaService.java        ← Lógica de categorías
+    │   ├── Movimiento.java              ← Entidad Movimiento
+    │   ├── MovimientoService.java       ← Lógica de movimientos
+    │   ├── DashboardController.java     ← Dashboard y estadísticas
+    │   ├── RecuperacionController.java  ← Recuperación de contraseña
+    │   ├── CorreoService.java           ← Envío de correos
+    │   └── ...                          ← Más clases
+    │
+    └── resources/
+        ├── application.properties        ← Configuración principal
+        ├── application-dev.properties    ← Perfil desarrollo (H2)
+        ├── application-prod.properties   ← Perfil producción (MySQL)
+        ├── static/img/                   ← Imágenes
+        └── templates/                    ← 📂 Plantillas HTML
+            ├── index.html                ← Página de inicio
+            ├── login.html                ← Login
+            ├── registro.html             ← Registro de usuarios
+            ├── dashboard.html            ← Dashboard principal
+            ├── productos.html            ← Gestión de productos
+            ├── categorias.html           ← Gestión de categorías
+            ├── movimientos.html          ← Registro de movimientos
+            ├── alertas.html              ← Alertas de stock
+            ├── cuentas.html              ← Gestión de cuentas (admin)
+            └── ...                       ← Más plantillas
